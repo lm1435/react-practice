@@ -57,6 +57,7 @@ class App extends Component {
     Then the filter has access to the list array which it compares the searchTerm against the title as stated in the isSearch function. 
   */
   render() {
+    const { searchTerm, list } = this.state;
     return (
       <div className="App">
         <form>
@@ -64,7 +65,7 @@ class App extends Component {
             onChange={this.onSearchChange}
           />
         </form>
-        {this.state.list.filter(this.isSearched(this.state.searchTerm)).map(item =>
+        {list.filter(this.isSearched(searchTerm)).map(item =>
           <div key={item.objectID}>
             <span>
               <a href={item.url}>{item.title}</a>
