@@ -4,19 +4,22 @@ import Button from "./Button";
 const Table = ({ list, pattern, onDismiss }) => {
   const isSearched = (searchTerm) => (item) => item.title.toLowerCase().includes(searchTerm.toLowerCase());
   return (
-    <div>
+    <div className="table">
       {list.filter(isSearched(pattern)).map((item) => (
-        <div key={item.objectID}>
-          <span>
+        <div key={item.objectID} className="table-row">
+          <span className="large-width">
             <a href={item.url}>{item.title}</a>
           </span>
-          <span>{item.author}</span>
-          <span>{item.num_comments}</span>
-          <span>{item.points}</span>
-          <span>
+          <span className="medium-width">
+            {item.author}</span>
+          <span className="small-width">
+            {item.num_comments}</span>
+          <span className="small-width">
+            {item.points}</span>
+          <span className="small-width">
             <Button 
               onClick={() => onDismiss(item.objectID)}
-              className='remove'
+              className='button-inline'
             >
               X
             </Button>
