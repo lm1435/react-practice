@@ -4,68 +4,81 @@ import Search from './Search';
 import Table from './Table';
 
 
-const list = [
-  {
-    title: 'React',
-    url: 'https://facebook.github.io/react/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0
-  },
-  {
-    title: 'Redux',
-    url: 'https://github.com/reactjs/redux',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1
-  },
-];
+const DEFAULT_QUERY = 'redux';
+
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      list,
-      searchTerm: '',
+      result: null,
+      searchTerm: DEFAULT_QUERY
     };
+  }
+
+  setSearchTopStories = (result) => {
+    this.setState({ result });
   }
 
   onDismiss = (id) => {
     const isNotId = (item) => item.objectID !== id;
 
-    const updatedList = this.state.list.filter(isNotId);
+    const updatedHits = this.state.result.hits.filter(isNotId);
 
     this.setState({
-      list: updatedList,
+      result: {...this.state.result, hits: updatedHits},
     })
+  }
+
+  onSearchSubmit = (e) => {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+    e.preventDefault();
+  }
+
+  fetchSearchTopStories = (searchTerm) => {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+    .then(response => response.json())
+    .then(result => this.setSearchTopStories(result))
+    .catch(error => error);
   }
 
   onSearchChange = (e) => {
     this.setState({
       searchTerm: e.target.value,
-    })
+    });
+  }
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
   }
 
   render() {
-    const { list, searchTerm } = this.state;
+    const { result, searchTerm } = this.state;
+
     return (
       <div className="App page">
-        <div className=" interaction">
+        <div className="interaction">
           <Search 
             onChange={this.onSearchChange}
             value={searchTerm}
+            onSubmit={this.onSearchSubmit}
           >
             Search
           </Search>
         </div>
-        <Table 
-          list={list}
-          pattern={searchTerm}
-          onDismiss={this.onDismiss}
-        />
+        { result ? 
+          <Table 
+            list={result.hits}
+            onDismiss={this.onDismiss}
+          />
+          : null
+        }
       </div>
     );
   }
