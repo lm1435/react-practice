@@ -5,7 +5,7 @@ const Table = ({ list, onDismiss }) => {
   return (
     <div className="table">
       {list.map((item) => (
-        <div key={item.objectID} className="table-row">
+        <div key={item.url} className="table-row">
           <span className="large-width">
             <a href={item.url}>{item.title}</a>
           </span>

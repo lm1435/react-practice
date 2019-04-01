@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Search from './Search';
 import Table from './Table';
+import Button from './Button';
 
 
 const DEFAULT_QUERY = 'redux';
@@ -9,6 +10,7 @@ const DEFAULT_QUERY = 'redux';
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
+const PARAM_PAGE='page='
 
 class App extends Component {
   constructor(props) {
@@ -21,7 +23,16 @@ class App extends Component {
   }
 
   setSearchTopStories = (result) => {
-    this.setState({ result });
+    const { hits, page } = result;
+    const oldHits = page !== 0 ? this.state.result.hits : [];
+    const updatedHits = [
+      ...oldHits, 
+      ...hits
+    ];
+    this.setState({ 
+      result: { hits: updatedHits, page } 
+    });
+
   }
 
   onDismiss = (id) => {
@@ -40,8 +51,8 @@ class App extends Component {
     e.preventDefault();
   }
 
-  fetchSearchTopStories = (searchTerm) => {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+  fetchSearchTopStories = (searchTerm, page = 0) => {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
     .then(response => response.json())
     .then(result => this.setSearchTopStories(result))
     .catch(error => error);
@@ -60,7 +71,7 @@ class App extends Component {
 
   render() {
     const { result, searchTerm } = this.state;
-
+    const page = (result && result.page) || 0;
     return (
       <div className="App page">
         <div className="interaction">
@@ -79,6 +90,21 @@ class App extends Component {
           />
           : null
         }
+        <div style={{marginTop: '10px'}}>
+        { page > 0 ?
+            <Button
+              className={'previous'}
+              onClick={()=>this.fetchSearchTopStories(searchTerm, page-1)}
+            >
+              Less
+            </Button> : null
+          }
+          <Button
+            onClick={()=>this.fetchSearchTopStories(searchTerm, page+1)}
+          >
+            More
+          </Button>
+        </div>
       </div>
     );
   }
